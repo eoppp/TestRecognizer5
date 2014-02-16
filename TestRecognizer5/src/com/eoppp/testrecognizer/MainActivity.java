@@ -35,6 +35,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	private static final int MAX_RESULT = 1;
 
 	String resStr = "";
+	String start = "こんばんは";
 
 	private TextToSpeech tts;// tts関連
 
@@ -55,13 +56,15 @@ public class MainActivity extends Activity implements OnClickListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		tts = new TextToSpeech(getApplicationContext(), this);// tts関連
+		
 		Button button = (Button) findViewById(R.id.button1);
 		button.setOnClickListener(this);
 
-		tts = new TextToSpeech(getApplicationContext(), this);// tts関連
-
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mShakeListener = new ShakeListener();
+
 	}
 
 	/**
@@ -98,26 +101,31 @@ public class MainActivity extends Activity implements OnClickListener,
 			Toast.makeText(this, resStr, Toast.LENGTH_LONG).show();
 			if (resStr.contains("おやすみ")) {
 				Toast.makeText(this, "おやすみなさい、いい夢を", Toast.LENGTH_LONG).show();
-				tts.speak("おやすみなさい、いい夢を", TextToSpeech.QUEUE_FLUSH, null);// tts関連
-				resStr = "";
+				speechText("おやすみなさい、いい夢を");
 				moveTaskToBack(true);// アプリ終了
 			} else if (resStr.contains("占い")) {
-				tts.speak("占います。", TextToSpeech.QUEUE_FLUSH, null);// tts関連
+				speechText("占います。");
 				stop(1000);
 				startvolley(URANAI_URL_PREFIX);
 			} else if (resStr.contains("天気")) {
-				tts.speak("お天気です。", TextToSpeech.QUEUE_FLUSH, null);// tts関連
+				speechText("お天気です。");
 				stop(1000);
 				startvolley(OTENKI_URL_PREFIX);
 			} else if (resStr.contains("音楽")) {
-				tts.speak("雨のおと。", TextToSpeech.QUEUE_FLUSH, null);// tts関連
+				speechText("雨のおと。");
 				// Sounds.playBGM();
+				resStr = "";
+			} else{
 				resStr = "";
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	public void speechText(String string){
+		tts.speak(string, TextToSpeech.QUEUE_FLUSH, null);
+	}
+	
 	/**
 	 * tts関連
 	 */
@@ -165,7 +173,6 @@ public class MainActivity extends Activity implements OnClickListener,
 				tts.speak(kekka, TextToSpeech.QUEUE_FLUSH, null);// tts関連
 				stop(13500);
 				tts.speak(content, TextToSpeech.QUEUE_FLUSH, null);// tts関連
-				resStr = "";
 			} catch (JSONException e) {
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 			}
@@ -179,6 +186,8 @@ public class MainActivity extends Activity implements OnClickListener,
 				final String telop = forecasts.getString("telop");
 				final String date = forecasts.getString("date");
 				final String dataLabel = forecasts.getString("dateLabel");
+				final String description = response
+						.getJSONObject("description").getString("text");
 				// final String maxtemperature = forecasts
 				// .getJSONObject("temperature").getJSONObject("max")
 				// .getString("celsius");
@@ -191,11 +200,11 @@ public class MainActivity extends Activity implements OnClickListener,
 				// + mintemperature + "度の見込みです。";
 				Toast.makeText(this, happyou, Toast.LENGTH_LONG).show();
 				tts.speak(happyou, TextToSpeech.QUEUE_FLUSH, null);// tts関連
-				resStr = "";
 			} catch (JSONException e) {
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 			}
 		}
+		resStr="";
 	}
 
 	/**
@@ -217,6 +226,10 @@ public class MainActivity extends Activity implements OnClickListener,
 		requestQueue.add(request);
 	}
 
+	/**
+	 * @param time
+	 *            動きを止めるメソッド
+	 */
 	private void stop(int time) {
 		try {
 			Thread.sleep(time);
@@ -241,7 +254,9 @@ public class MainActivity extends Activity implements OnClickListener,
 	private OnShakeListener mOnShakeListener = new OnShakeListener() {
 		// @Override
 		public void onShaked(int direction) {
-			if ((direction & ShakeListener.DIRECTION_X) > 0) {
+			if ((direction & ShakeListener.DIRECTION_X) > 0
+					|| (direction & ShakeListener.DIRECTION_Y) > 0
+					|| (direction & ShakeListener.DIRECTION_Z) > 0) {
 				i++;
 				if (i > 40) {
 					try {
