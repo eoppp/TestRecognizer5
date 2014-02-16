@@ -13,6 +13,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
@@ -46,6 +48,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	private SensorManager mSensorManager;
 	private ShakeListener mShakeListener;
 
+	private MediaPlayer mp;
+
 	int i = 0;
 
 	private void startSearch(final String url) {
@@ -56,9 +60,9 @@ public class MainActivity extends Activity implements OnClickListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		tts = new TextToSpeech(getApplicationContext(), this);// tts関連
-		
+
 		Button button = (Button) findViewById(R.id.button1);
 		button.setOnClickListener(this);
 
@@ -111,21 +115,30 @@ public class MainActivity extends Activity implements OnClickListener,
 				speechText("お天気です。");
 				stop(1000);
 				startvolley(OTENKI_URL_PREFIX);
-			} else if (resStr.contains("音楽")) {
+			} else if (resStr.contains("リラックス")) {
 				speechText("雨のおと。");
 				// Sounds.playBGM();
+				try {
+					mp = MediaPlayer.create(this, R.raw.rain);
+					mp.prepare();
+				} catch (Exception e) {
+				}
+				mp.start();
 				resStr = "";
-			} else{
+			} else if (resStr.contains("停止")) {
+				mp.stop();
+				resStr = "";
+			} else {
 				resStr = "";
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	public void speechText(String string){
+	public void speechText(String string) {
 		tts.speak(string, TextToSpeech.QUEUE_FLUSH, null);
 	}
-	
+
 	/**
 	 * tts関連
 	 */
@@ -133,6 +146,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	protected void onDestroy() {
 		super.onDestroy();
 		tts.shutdown();
+		mp.release();
 	}
 
 	/**
@@ -204,7 +218,7 @@ public class MainActivity extends Activity implements OnClickListener,
 				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 			}
 		}
-		resStr="";
+		resStr = "";
 	}
 
 	/**
@@ -249,6 +263,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	public void onPause() {
 		super.onPause();
 		mShakeListener.unregisterListener(mSensorManager);
+
 	}
 
 	private OnShakeListener mOnShakeListener = new OnShakeListener() {
@@ -281,4 +296,5 @@ public class MainActivity extends Activity implements OnClickListener,
 			}
 		}
 	};
+
 }
