@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
@@ -38,23 +37,24 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	String resStr = "";
 	String start = "こんばんは";
-
-	private TextToSpeech tts;// tts関連
-
-	private static final String URANAI_URL_PREFIX = "http://api.jugemkey.jp/api/horoscope/free";// 占いAPI
-	private static final String OTENKI_URL_PREFIX = "http://weather.livedoor.com/forecast/webservice/json/v1?city=130010";// お天気API
-
-	private static final int[] DIFFERENCE_THRESHOLD_LIST = { 700, 500, 300 };
+	// tts関連
+	private TextToSpeech tts;
+	// 占いAPI
+	private static final String URANAI_URL_PREFIX = "http://api.jugemkey.jp/api/horoscope/free";
+	// お天気API
+	private static final String OTENKI_URL_PREFIX = "http://weather.livedoor.com/forecast/webservice/json/v1?city=130010";
+	// シェイク用
 	private SensorManager mSensorManager;
 	private ShakeListener mShakeListener;
-
-	private MediaPlayer mp;
-
 	int i = 0;
+	// 音楽再生用
+	private MediaPlayer mp;
+	// Twitter用
+	private Button btnAuth = null;
 
-	private void startSearch(final String url) {
-		System.out.println("url:" + url);
-	}
+	// private void startSearch(final String url) {
+	// System.out.println("url:" + url);
+	// }
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -124,9 +124,6 @@ public class MainActivity extends Activity implements OnClickListener,
 				} catch (Exception e) {
 				}
 				mp.start();
-				resStr = "";
-			} else if (resStr.contains("停止")) {
-				mp.stop();
 				resStr = "";
 			} else {
 				resStr = "";

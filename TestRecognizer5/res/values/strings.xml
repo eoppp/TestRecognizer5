@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="Recognize">おやすみの言葉</string>
     <string name="start">話しかける</string>
+    <string name="certify">certify</string>
 
 </resources>

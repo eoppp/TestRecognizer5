@@ -10,6 +10,7 @@ int raw rain 0x7f040001
 int string Recognize 0x7f060003
 int string action_settings 0x7f060001
 int string app_name 0x7f060000
+int string certify 0x7f060005
 int string hello_world 0x7f060002
 int string start 0x7f060004
 int style AppBaseTheme 0x7f070000
