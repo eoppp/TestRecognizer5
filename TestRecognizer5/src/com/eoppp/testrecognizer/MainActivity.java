@@ -49,8 +49,6 @@ public class MainActivity extends Activity implements OnClickListener,
 	int i = 0;
 	// 音楽再生用
 	private MediaPlayer mp;
-	// Twitter用
-	private Button btnAuth = null;
 
 	// private void startSearch(final String url) {
 	// System.out.println("url:" + url);
@@ -106,6 +104,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			if (resStr.contains("おやすみ")) {
 				Toast.makeText(this, "おやすみなさい、いい夢を", Toast.LENGTH_LONG).show();
 				speechText("おやすみなさい、いい夢を");
+				resStr = "";
 				moveTaskToBack(true);// アプリ終了
 			} else if (resStr.contains("占い")) {
 				speechText("占います。");
@@ -124,6 +123,9 @@ public class MainActivity extends Activity implements OnClickListener,
 				} catch (Exception e) {
 				}
 				mp.start();
+				resStr = "";
+			} else if (resStr.contains("停止") || resStr.contains("stop")) {
+				mp.stop();
 				resStr = "";
 			} else {
 				resStr = "";
@@ -271,6 +273,8 @@ public class MainActivity extends Activity implements OnClickListener,
 					|| (direction & ShakeListener.DIRECTION_Z) > 0) {
 				i++;
 				if (i > 40) {
+					speechText("なにかご用ですか？");
+					stop(1000);
 					try {
 						Intent intent = new Intent(
 								RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -293,5 +297,26 @@ public class MainActivity extends Activity implements OnClickListener,
 			}
 		}
 	};
+	
+	public void other(){
+		speechText("他にご用はありますか？");
+		stop(1000);
+		try {
+			Intent intent = new Intent(
+					RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+					RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
+					Locale.JAPAN.toString());
+			intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+					getString(R.string.Recognize));
+			intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,
+					MAX_RESULT);
+			startActivityForResult(intent, REQUEST_CODE);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(MainActivity.this, e.getMessage(),
+					Toast.LENGTH_LONG).show();
+		}
+	}
 
 }
