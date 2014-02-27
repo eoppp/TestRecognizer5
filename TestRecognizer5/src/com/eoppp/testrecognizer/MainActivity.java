@@ -30,8 +30,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.eoppp.testrecognizer.ShakeListener.OnShakeListener;
 
-public class MainActivity extends Activity implements OnClickListener,
-		OnInitListener, Listener<JSONObject>, ErrorListener {
+public class MainActivity extends Activity implements OnInitListener,
+		Listener<JSONObject>, ErrorListener {
 	private static final int REQUEST_CODE = 0;
 	private static final int MAX_RESULT = 1;
 
@@ -61,33 +61,38 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		tts = new TextToSpeech(getApplicationContext(), this);// tts関連
 
-		Button button = (Button) findViewById(R.id.button1);
-		button.setOnClickListener(this);
+		// Button button = (Button) findViewById(R.id.button1);
+		// button.setOnClickListener(this);
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mShakeListener = new ShakeListener();
+		mp = MediaPlayer.create(this, R.raw.rain);
+		try {
+			mp.prepare();
+		} catch (Exception e) {
+		}
 
 	}
 
 	/**
 	 * ボタンが押されたら、音声認識をする
 	 */
-	public void onClick(View v) {
-		try {
-			Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-					RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
-					Locale.JAPAN.toString());
-			intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-					getString(R.string.Recognize));
-			intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, MAX_RESULT);
-			startActivityForResult(intent, REQUEST_CODE);
-		} catch (ActivityNotFoundException e) {
-			Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_LONG)
-					.show();
-		}
-	}
+	// public void onClick(View v) {
+	// try {
+	// Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+	// intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+	// RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+	// intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
+	// Locale.JAPAN.toString());
+	// intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+	// getString(R.string.Recognize));
+	// intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, MAX_RESULT);
+	// startActivityForResult(intent, REQUEST_CODE);
+	// } catch (ActivityNotFoundException e) {
+	// Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_LONG)
+	// .show();
+	// }
+	// }
 
 	/**
 	 * 音声認識された後の処理
@@ -117,8 +122,9 @@ public class MainActivity extends Activity implements OnClickListener,
 			} else if (resStr.contains("リラックス")) {
 				speechText("雨のおと。");
 				// Sounds.playBGM();
+				mp.reset();
+				mp = MediaPlayer.create(this, R.raw.rain);
 				try {
-					mp = MediaPlayer.create(this, R.raw.rain);
 					mp.prepare();
 				} catch (Exception e) {
 				}
@@ -126,6 +132,10 @@ public class MainActivity extends Activity implements OnClickListener,
 				resStr = "";
 			} else if (resStr.contains("停止") || resStr.contains("stop")) {
 				mp.stop();
+				try {
+					mp.prepare();
+				} catch (Exception e) {
+				}
 				resStr = "";
 			} else {
 				resStr = "";
@@ -262,7 +272,6 @@ public class MainActivity extends Activity implements OnClickListener,
 	public void onPause() {
 		super.onPause();
 		mShakeListener.unregisterListener(mSensorManager);
-
 	}
 
 	private OnShakeListener mOnShakeListener = new OnShakeListener() {
@@ -273,8 +282,11 @@ public class MainActivity extends Activity implements OnClickListener,
 					|| (direction & ShakeListener.DIRECTION_Z) > 0) {
 				i++;
 				if (i > 40) {
-					speechText("なにかご用ですか？");
-					stop(1000);
+					speechText("なあに？");
+					stop(100);
+					if (mp.isPlaying()) {
+						mp.setVolume(0.3F, 0.3F);
+					}
 					try {
 						Intent intent = new Intent(
 								RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -297,26 +309,4 @@ public class MainActivity extends Activity implements OnClickListener,
 			}
 		}
 	};
-	
-	public void other(){
-		speechText("他にご用はありますか？");
-		stop(1000);
-		try {
-			Intent intent = new Intent(
-					RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-					RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
-					Locale.JAPAN.toString());
-			intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-					getString(R.string.Recognize));
-			intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,
-					MAX_RESULT);
-			startActivityForResult(intent, REQUEST_CODE);
-		} catch (ActivityNotFoundException e) {
-			Toast.makeText(MainActivity.this, e.getMessage(),
-					Toast.LENGTH_LONG).show();
-		}
-	}
-
 }
