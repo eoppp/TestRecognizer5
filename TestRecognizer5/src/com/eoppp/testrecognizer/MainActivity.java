@@ -18,9 +18,6 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -34,6 +31,7 @@ public class MainActivity extends Activity implements OnInitListener,
 		Listener<JSONObject>, ErrorListener {
 	private static final int REQUEST_CODE = 0;
 	private static final int MAX_RESULT = 1;
+	private boolean machi = true;// 指示待ち状態
 
 	String resStr = "";
 	String start = "こんばんは";
@@ -60,7 +58,6 @@ public class MainActivity extends Activity implements OnInitListener,
 		setContentView(R.layout.activity_main);
 
 		tts = new TextToSpeech(getApplicationContext(), this);// tts関連
-
 		// Button button = (Button) findViewById(R.id.button1);
 		// button.setOnClickListener(this);
 
@@ -137,11 +134,15 @@ public class MainActivity extends Activity implements OnInitListener,
 				} catch (Exception e) {
 				}
 				resStr = "";
+			} else if (resStr.contains("カレンダー")) {
+
+				resStr = "";
 			} else {
 				resStr = "";
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+		machi = true;// 待ち状態を解除
 	}
 
 	public void speechText(String string) {
@@ -281,8 +282,9 @@ public class MainActivity extends Activity implements OnInitListener,
 					|| (direction & ShakeListener.DIRECTION_Y) > 0
 					|| (direction & ShakeListener.DIRECTION_Z) > 0) {
 				i++;
-				if (i > 40) {
+				if (i > 30 && machi == true) {
 					speechText("なあに？");
+					machi = false;// 指示待ち状態を解除
 					stop(100);
 					if (mp.isPlaying()) {
 						mp.setVolume(0.3F, 0.3F);
@@ -309,4 +311,5 @@ public class MainActivity extends Activity implements OnInitListener,
 			}
 		}
 	};
+
 }
