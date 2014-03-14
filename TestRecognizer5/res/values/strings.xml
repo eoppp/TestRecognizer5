@@ -7,5 +7,14 @@
     <string name="Recognize">おやすみの言葉</string>
     <string name="start">話しかける</string>
     <string name="certify">certify</string>
+    <string name="consumer_key">VaXjpupg7W6CYzDAdtz0jg</string>
+    <string name="consumer_secret">xJcuxjo8Sb0RkusBh43pvFU4xG7iRwPX2xepWRaD18</string>
+    
+    <string name="shake">シェイクする：会話スタート</string>
+    <string name="uranai">「占い。〜座」：〜座の明日の運勢を占います。</string>
+    <string name="tenki">「天気。〜市」：〜の天気を教えてくれる。</string>
+    <string name="relax">「リラックス。」：雨の音を流す。「停止」か「ストップ」で止まる。</string>
+    <string name="twitter">「ツイッター。〜」：〜をツイートする。</string>
+    <string name="oyasumi">「おやすみ。」：アプリ終了。おやすみなさい</string>
 
 </resources>
